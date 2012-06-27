@@ -1,4 +1,4 @@
-(ns fadbuys-server.tweet-collector)
+(ns fadbuys-server.collector)
 
 (defn -main
   "I don't do a whole lot."
