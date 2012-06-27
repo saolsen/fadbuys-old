@@ -1,5 +1,6 @@
 collector:
   type: custom
+  buildscript: fadbuys-server/buildscript
   ports:
     www: http
   process: lein trampoline run -m fadbuys-server.collector

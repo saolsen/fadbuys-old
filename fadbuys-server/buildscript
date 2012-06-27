@@ -1,0 +1,4 @@
+#!/bin/bash
+cp -r /tmp/code/fadbuys-server ~/
+cd ~/fadbuys-server
+lein deps
