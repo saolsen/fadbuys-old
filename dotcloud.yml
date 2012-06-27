@@ -1,2 +1,7 @@
 collector:
   type: custom
+  process: lein trampoline run -m fadbuys-server.tweet-collector
+  approot: fadbuys-server
+  ports:
+    www: http
+
