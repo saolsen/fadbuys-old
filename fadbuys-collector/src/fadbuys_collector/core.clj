@@ -41,9 +41,8 @@
           (consumer (get-text (json/parse-string s true))))))
     (recur)))
 
-;; Setup Agents
+;; Setup Agent
 (def collection (agent []))
-(def s3-writer (agent nil))
 
 (defn log-tweet
   [tweet]
@@ -53,9 +52,10 @@
 (defn sync-watcher
   [key a old new]
   (if (> (count new) 500)
-    (do
-      (send s3-writer (fn [x] (write-tweets-to-s3 new)))
-      (send collection (fn [x] [])))
+    (send collection (fn [tweets]
+                       (do
+                         (future (write-tweets-to-s3 tweets))
+                         (vec '()))))
     nil))
 
 (add-watch collection :syncer sync-watcher)
@@ -69,7 +69,7 @@
 (defn handler [req]
   {:status 200
    :headers {"Content-Type" "text/html"}
-   :body (count-collection)})
+   :body (str (count-collection))})
 
 (defn start-server
   []
