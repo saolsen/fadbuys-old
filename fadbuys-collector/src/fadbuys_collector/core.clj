@@ -52,7 +52,7 @@
 ;; If there are more than 500 tweets sync to s3
 (defn sync-watcher
   [key a old new]
-  (if (> (count new) 5)
+  (if (> (count new) 500)
     (do
       (send s3-writer (fn [x] (write-tweets-to-s3 new)))
       (send collection (fn [x] [])))
