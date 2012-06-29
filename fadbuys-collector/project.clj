@@ -6,6 +6,6 @@
   :main fadbuys-collector.core
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [clj-aws-s3 "0.3.2"]
-                 [http.async.client "0.4.5"]
+                 [twitter-streaming-client "0.2.0-SNAPSHOT"]
                  [ring "1.1.1"]
                  [cheshire "4.0.0"]])
