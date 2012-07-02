@@ -1,13 +1,11 @@
 (ns fadbuys-collector.core
-  (:require [aws.sdk.s3 :as s3]
+  (:require [clojure.java.io :as io]
             [ring.adapter.jetty :as web]
             [cheshire.core :as json]
             [twitter-streaming-client.core :as client]
             [twitter.oauth :as oauth]))
 
 ;; Mah creds
-(def aws-cred {:access-key (System/getenv "AWS_ACCESS")
-               :secret-key (System/getenv "AWS_SECRET")})
 (def tweet-cred (oauth/make-oauth-creds
                  (System/getenv "TWITTER_CONSUMER_KEY")
                  (System/getenv "TWITTER_CONSUMER_SECRET")
@@ -15,18 +13,18 @@
                  (System/getenv "TWITTER_ACCESS_SECRET")))
 
 ;; S3 stuff
-(def bucket "com.fadbuys.twitter")
-
-(defn get-key
-  "Gets the key to write to."
+(defn get-filename
+  "Gets the filename to write to."
   []
-  (.toGMTString (new java.util.Date)))
+  (str "/users/steveo/dotcloud/store/" (.toGMTString (new java.util.Date))))
 
-(defn write-tweets-to-s3
-  "Writes the vector to an s3 bucket"
+(defn write-tweets-to-s3fs
+  "Writes the vector to s3fs"
   [tweets]
-  (let [text (apply str (interpose "\n" tweets))]
-    (s3/put-object aws-cred bucket (get-key) text)))
+  (println tweets)
+  (with-open [wrt (io/writer (get-filename))]
+    (doseq [x tweets]
+      (.write wrt (str x "\n")))))
 
 ;; Twitter stuff
 (def stream  (client/create-twitter-stream
@@ -38,7 +36,10 @@
   (loop []
     (let [queue (client/retrieve-queues stream)
           tweets (map :text (:tweet queue))]
-      (write-tweets-to-s3 tweets))
+      (if (> (count tweets) 0)
+        (write-tweets-to-s3fs tweets)
+        nil)
+      (. Thread (sleep 30000)))
     (recur)))
 
 (defn -main
@@ -46,4 +47,4 @@
   []
   (do
     (client/start-twitter-stream stream)
-    (future (sync-tweets))))
+    (sync-tweets)))
